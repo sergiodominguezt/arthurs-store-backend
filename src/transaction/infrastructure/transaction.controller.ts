@@ -1,8 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseFilters } from '@nestjs/common';
 import { TransactionService } from '../application/service/transaction.service';
 import { TransactionDTO } from '../application/dtos/transaction.dto';
+import { AllExceptionsFilter } from 'src/shared/filters/all-exceptions.filter';
+import { ResourceNaming } from '../constant/resource.constants';
 
-@Controller('transaction')
+@Controller(ResourceNaming.PROCESS_PAYMENT_RESOURCE)
+@UseFilters(AllExceptionsFilter)
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
