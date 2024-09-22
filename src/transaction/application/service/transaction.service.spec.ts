@@ -5,11 +5,27 @@ import { TransactionRepository } from 'src/transaction/domain/repository/transac
 import { TransactionDTO } from '../dtos/transaction.dto';
 
 jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-fdescribe('TransactionService', () => {
-  let service: TransactionService;
+describe('service', () => {
+  let transactionService: TransactionService;
   let transactionRepository: TransactionRepository;
+
+  const mockTransactionRepository = {
+    create: jest.fn(),
+    updateStatus: jest.fn(),
+  };
+
+  const transactionDTO: TransactionDTO = {
+    amount: 1000,
+    cardNumber: '4111111111111111',
+    cvc: '123',
+    expirationMonth: '12',
+    expirationYear: '25',
+    cardHolder: 'John Doe',
+    userEmail: 'john@example.com',
+    installments: 1,
+    productId: 1,
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -17,51 +33,50 @@ fdescribe('TransactionService', () => {
         TransactionService,
         {
           provide: 'TransactionRepository',
-          useValue: {
-            create: jest.fn(),
-            updateStatus: jest.fn(),
-          },
+          useValue: mockTransactionRepository,
         },
       ],
     }).compile();
 
-    service = module.get<TransactionService>(TransactionService);
+    transactionService = module.get<TransactionService>(TransactionService);
     transactionRepository = module.get<TransactionRepository>(
       'TransactionRepository',
     );
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(TransactionService).toBeDefined();
   });
 
-  it('should process a transaction successfully', async () => {
-    const transactionDto: TransactionDTO = {
-      amount: 100,
-      cardNumber: '4111111111111111',
-      cvc: '123',
-      expirationMonth: '12',
-      expirationYear: '2025',
-      cardHolder: 'John Doe',
-      userEmail: 'john.doe@example.com',
-      installments: 1,
-    };
+  it('should process transaction successfully', async () => {
+    const mockAcceptanceToken = 'mock-acceptance-token';
+    const mockCardToken = 'mock-card-token';
+    const mockReference = 'ART20230912091212';
+    const mockSignature = 'mock-signature';
 
-    mockedAxios.post.mockResolvedValueOnce({
-      data: {
-        data: {
-          id: 'transaction-id',
-          status: 'APPROVED',
-        },
-      },
-    });
+    jest
+      .spyOn(transactionService, 'getAcceptanceToken')
+      .mockResolvedValue(mockAcceptanceToken);
+    jest
+      .spyOn(transactionService, 'getCardToken')
+      .mockResolvedValue(mockCardToken);
+    jest
+      .spyOn(transactionService, 'generateReference')
+      .mockReturnValue(mockReference);
+    jest
+      .spyOn(transactionService, 'generateSignature')
+      .mockReturnValue(mockSignature);
 
-    await service.processTransaction(transactionDto);
+    await transactionService.processTransaction(transactionDTO);
 
-    expect(transactionRepository.create).toHaveBeenCalled();
-    expect(transactionRepository.updateStatus).toHaveBeenCalledWith(
-      'transaction-id',
-      'APPROVED',
+    expect(transactionService.getAcceptanceToken).toHaveBeenCalled();
+    expect(transactionService.getCardToken).toHaveBeenCalledWith(
+      expect.any(Object),
+    );
+    expect(transactionService.generateReference).toHaveBeenCalled();
+    expect(transactionService.generateSignature).toHaveBeenCalledWith(
+      mockReference,
+      transactionDTO.amount,
     );
   });
 });

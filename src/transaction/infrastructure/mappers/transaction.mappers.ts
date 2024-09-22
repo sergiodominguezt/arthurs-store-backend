@@ -1,4 +1,4 @@
-import { Transaction } from 'src/transaction/domain/model/transaction.model';
+import { Transaction } from '../../domain/model/transaction.model';
 import { TransactionEntity } from '../entity/transaction.entity';
 
 export class TransactionMappers {
@@ -8,6 +8,7 @@ export class TransactionMappers {
     transactionEntity.status = transaction.status;
     transactionEntity.userEmail = transaction.userEmail;
     transactionEntity.amount = transaction.amount;
+    transactionEntity.productId = transaction.productId;
     return transactionEntity;
   }
 
@@ -17,6 +18,7 @@ export class TransactionMappers {
       entity.status,
       entity.userEmail,
       entity.amount,
+      entity.productId,
     );
   }
 }

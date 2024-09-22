@@ -4,5 +4,6 @@ export class Transaction {
     public status: string,
     public userEmail: string,
     public amount: number,
+    public productId: number,
   ) {}
 }
