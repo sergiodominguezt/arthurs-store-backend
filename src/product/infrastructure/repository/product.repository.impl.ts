@@ -27,7 +27,20 @@ export class ProductRepositoryImpl implements ProductRepository {
   }
 
   async findById(productId: number): Promise<Product | null> {
-    return await this.productRepository.findOne({ where: { id: productId } });
+    const entity = await this.productRepository.findOne({
+      where: { id: productId },
+    });
+
+    if (!entity) return null;
+
+    return new Product(
+      entity.id,
+      entity.name,
+      entity.description,
+      entity.price,
+      entity.stock,
+      entity.deliveries,
+    );
   }
 
   async updateStock(productId: number, newStock: number): Promise<void> {

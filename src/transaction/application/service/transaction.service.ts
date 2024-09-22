@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TransactionDTO } from '../dtos/transaction.dto';
-import { TransactionErrorMessages } from '../../constant/transaction.constants';
+import { TransactionErrorMessages } from '../../constants/transaction.constants';
 import axios, { AxiosRequestConfig } from 'axios';
 import { PaymentData } from '../../domain/interfaces/payment-data.interface';
 import * as crypto from 'crypto';
@@ -11,6 +11,8 @@ import { Transaction } from '../../domain/model/transaction.model';
 import { TransactionMappers } from '../../infrastructure/mappers/transaction.mappers';
 import { ProductRepository } from 'src/product/domain/repository/product.repository';
 import { ProductService } from 'src/product/application/services/product.service';
+import { DeliveryService } from 'src/delivery/application/services/delivery.service';
+import { DeliveryDTO } from 'src/delivery/application/dtos/delivery.dto';
 
 dotenv.config();
 
@@ -35,10 +37,19 @@ export class TransactionService {
     @Inject('TransactionRepository')
     private readonly transactionRepository: TransactionRepository,
     private readonly productService: ProductService,
+    private readonly deliveryService: DeliveryService,
   ) {}
 
-  async processTransaction(transactionDTO: TransactionDTO): Promise<void> {
+  async processTransaction(
+    transactionDTO: TransactionDTO,
+    deliveryDTO: DeliveryDTO,
+  ): Promise<void> {
     try {
+      const productId = transactionDTO.productId;
+      await this.deliveryService.saveDeliveryInformation(
+        deliveryDTO,
+        productId,
+      );
       const [acceptanceToken, cardToken] = await Promise.all([
         this.getAcceptanceToken(),
         this.getCardToken(this.generateCardData(transactionDTO)),

@@ -7,10 +7,11 @@ import { ProductRepositoryImpl } from './infrastructure/repository/product.repos
 
 @Module({
   imports: [TypeOrmModule.forFeature([ProductEntity])],
-  providers: [ProductService, 
-    {provide: 'ProductRepository', useClass: ProductRepositoryImpl}
+  providers: [
+    ProductService,
+    { provide: 'ProductRepository', useClass: ProductRepositoryImpl },
   ],
   controllers: [ProductController],
-  exports: [ProductService]
+  exports: [ProductService, 'ProductRepository', TypeOrmModule],
 })
 export class ProductModule {}

@@ -1,4 +1,5 @@
 export class DeliveryDTO {
-    address: string;
-    status: string;
+  address: string;
+  city: string;
+  customerName: string;
 }

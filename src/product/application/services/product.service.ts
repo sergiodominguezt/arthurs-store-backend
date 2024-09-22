@@ -36,20 +36,20 @@ export class ProductService {
     await this.productRepository.updateStock(productId, newStock);
   }
 
-  // async seedDummyData(): Promise<void> {
-  //   const products: Product[] = [
-  //     new Product(0, 'Product 1', 'Description 1', 10.99, 100),
-  //     new Product(0, 'Product 2', 'Description 2', 20.49, 50),
-  //     new Product(0, 'Product 3', 'Description 3', 15.75, 75),
-  //     new Product(0, 'Product 4', 'Description 4', 12.0, 60),
-  //     new Product(0, 'Product 5', 'Description 5', 41.5, 2),
-  //     new Product(0, 'Product 6', 'Description 6', 13.45, 55),
-  //   ];
+  async seedDummyData(): Promise<void> {
+    const products: Product[] = [
+      new Product(0, 'Product 1', 'Description 1', 10.99, 100),
+      new Product(0, 'Product 2', 'Description 2', 20.49, 50),
+      new Product(0, 'Product 3', 'Description 3', 15.75, 75),
+      new Product(0, 'Product 4', 'Description 4', 12.0, 60),
+      new Product(0, 'Product 5', 'Description 5', 41.5, 2),
+      new Product(0, 'Product 6', 'Description 6', 13.45, 55),
+    ];
 
-  //   for (const product of products) {
-  //     await this.productRepository.create(product);
-  //   }
+    for (const product of products) {
+      await this.productRepository.create(product);
+    }
 
-  //   console.log('Dummy data seeded successfully!');
-  // }
+    console.log('Dummy data seeded successfully!');
+  }
 }
