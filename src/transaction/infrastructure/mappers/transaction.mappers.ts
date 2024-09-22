@@ -1,4 +1,4 @@
-import { Transaction } from 'src/transaction/domain/model/transaction.model';
+import { Transaction } from '../../domain/model/transaction.model';
 import { TransactionEntity } from '../entity/transaction.entity';
 
 export class TransactionMappers {

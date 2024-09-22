@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseFilters } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Post,
+  UseFilters,
+} from '@nestjs/common';
 import { TransactionService } from '../application/service/transaction.service';
 import { TransactionDTO } from '../application/dtos/transaction.dto';
 import { AllExceptionsFilter } from 'src/shared/filters/all-exceptions.filter';
@@ -17,8 +24,10 @@ export class TransactionController {
       await this.transactionService.processTransaction(transactionDto);
       return { message: 'Transaction processed successfully' };
     } catch (error) {
-      console.error('Error processing transaction:', error.message);
-      throw new Error('Transaction processing failed');
+      throw new HttpException(
+        error.message || 'An error ocurred while processing the transaction',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }

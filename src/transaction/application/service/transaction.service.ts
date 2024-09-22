@@ -1,15 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TransactionDTO } from '../dtos/transaction.dto';
-import { TransactionErrorMessages } from 'src/transaction/constant/transaction.constants';
+import { TransactionErrorMessages } from '../../constant/transaction.constants';
 import axios, { AxiosRequestConfig } from 'axios';
-import { PaymentData } from 'src/transaction/domain/interfaces/payment-data.interface';
+import { PaymentData } from '../../domain/interfaces/payment-data.interface';
 import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
-import { CardData } from 'src/transaction/domain/interfaces/card-data.interface';
-import { TransactionRepository } from 'src/transaction/domain/repository/transaction.repository';
-import { Transaction } from 'src/transaction/domain/model/transaction.model';
-import { TransactionMappers } from 'src/transaction/infrastructure/mappers/transaction.mappers';
-import e from 'express';
+import { CardData } from '../../domain/interfaces/card-data.interface';
+import { TransactionRepository } from '../../domain/repository/transaction.repository';
+import { Transaction } from '../../domain/model/transaction.model';
+import { TransactionMappers } from '../../infrastructure/mappers/transaction.mappers';
+import { ProductRepository } from 'src/product/domain/repository/product.repository';
+import { ProductService } from 'src/product/application/services/product.service';
 
 dotenv.config();
 
@@ -31,10 +32,13 @@ export class TransactionService {
   constructor(
     @Inject('TransactionRepository')
     private readonly transactionRepository: TransactionRepository,
+    private readonly productService: ProductService,
   ) {}
 
   async processTransaction(transactionDTO: TransactionDTO): Promise<void> {
     try {
+      const productId = transactionDTO.productId;
+      await this.productService.updateStock(productId, 1);
       const acceptanceToken = await this.getAcceptanceToken();
       if (!acceptanceToken)
         throw new Error(TransactionErrorMessages.ERROR_ACCEPTANCE_TOKEN);
