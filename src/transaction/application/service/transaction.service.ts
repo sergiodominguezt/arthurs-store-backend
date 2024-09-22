@@ -154,30 +154,6 @@ export class TransactionService {
     );
   }
 
-  private async updateTransactionStatus(transactionId: string): Promise<void> {
-    try {
-      const response = await this.getRequest(
-        `${this.API_URL}${this.TRANSACTION}/${transactionId}`,
-      );
-
-      const updatedStatus = response.data.data.status;
-      await this.updateTransactionStatusInDB(transactionId, updatedStatus);
-    } catch (error) {
-      this.handleError(
-        TransactionErrorMessages.ERROR_UPDATING_TRANSACTION_STATE,
-        error,
-      );
-      throw error;
-    }
-  }
-
-  async updateTransactionStatusInDB(
-    transactionId: string,
-    updatedStatus: any,
-  ): Promise<void> {
-    await this.transactionRepository.updateStatus(transactionId, updatedStatus);
-  }
-
   private async saveTransactionToDB(
     transactionId: string,
     initialStatus: string,
