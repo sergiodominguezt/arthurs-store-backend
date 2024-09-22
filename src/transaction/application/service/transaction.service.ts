@@ -335,5 +335,6 @@ export class TransactionService {
 
   handleError(message: any, error: any) {
     console.error(message, error.response?.data || error.message);
+    throw new Error(message);
   }
 }
