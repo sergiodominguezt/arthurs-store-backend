@@ -26,6 +26,8 @@ export class TransactionService {
   private applicationJson = 'application/json';
 
   traceMessagePaymentRequest = 'Payment request sent, Transaction ID is:';
+  traceMessagePendingStatus = 'Transaction created with status:';
+  approvedStatus = 'APPROVED';
   copCurrency = 'COP';
   paymentMethodType = 'CARD';
 
@@ -37,14 +39,16 @@ export class TransactionService {
 
   async processTransaction(transactionDTO: TransactionDTO): Promise<void> {
     try {
-      const productId = transactionDTO.productId;
-      await this.productService.updateStock(productId, 1);
-      const acceptanceToken = await this.getAcceptanceToken();
+      const [acceptanceToken, cardToken] = await Promise.all([
+        this.getAcceptanceToken(),
+        this.getCardToken(this.generateCardData(transactionDTO)),
+      ]);
+
       if (!acceptanceToken)
         throw new Error(TransactionErrorMessages.ERROR_ACCEPTANCE_TOKEN);
 
-      const cardData = this.generateCardData(transactionDTO);
-      const cardToken = await this.getCardToken(cardData);
+      if (!cardToken)
+        throw new Error(TransactionErrorMessages.ERROR_GETTING_CARD_TOKEN);
 
       const reference = this.generateReference();
       const signature = this.generateSignature(
@@ -60,7 +64,7 @@ export class TransactionService {
         acceptanceToken,
       );
 
-      await this.sendPaymentRequest(paymentData);
+      await this.sendPaymentRequest(paymentData, transactionDTO);
     } catch (error) {
       this.handleError(
         TransactionErrorMessages.ERROR_PROCESSING_TRANSACTION,
@@ -68,11 +72,11 @@ export class TransactionService {
       );
     }
   }
-  handleError(message: any, error: any) {
-    console.error(message, error.response?.data || error.message);
-  }
 
-  private async sendPaymentRequest(paymentData: PaymentData): Promise<void> {
+  private async sendPaymentRequest(
+    paymentData: PaymentData,
+    transactionDTO: TransactionDTO,
+  ): Promise<void> {
     try {
       const response = await this.postRequest(
         `${this.API_URL}${this.TRANSACTION}`,
@@ -82,12 +86,14 @@ export class TransactionService {
 
       const transactionId = response.data.data.id;
       const initialStatus = response.data.data.status;
+      console.log(`${this.traceMessagePendingStatus} ${initialStatus}`);
       console.log(`${this.traceMessagePaymentRequest} ${transactionId}`);
 
       await this.handleTransactionResponse(
         transactionId,
         initialStatus,
         paymentData,
+        transactionDTO,
       );
     } catch (error) {
       this.handleError(
@@ -97,18 +103,44 @@ export class TransactionService {
       throw error;
     }
   }
+
+  async handleTransactionUpdate(
+    transactionNumber: string,
+    status: string,
+  ): Promise<void> {
+    const transactionDetails =
+      await this.transactionRepository.findByTransactionNumber(
+        transactionNumber,
+      );
+
+    if (!transactionDetails)
+      throw new Error(TransactionErrorMessages.ERROR_TRANSACTION_NOT_FOUND);
+
+    if (status === this.approvedStatus) {
+      await this.transactionRepository.updateStatus(transactionNumber, status);
+
+      const productId = transactionDetails.productId;
+      if (productId) {
+        await this.productService.updateStock(productId, 1);
+      } else {
+        throw new Error(TransactionErrorMessages.ERROR_PRODUCT_NOT_FOUND);
+      }
+    }
+  }
+
   async handleTransactionResponse(
     transactionId: string,
     initialStatus: string,
     paymentData: PaymentData,
+    transactionDTO: TransactionDTO,
   ) {
     await this.saveTransactionToDB(
       transactionId,
       initialStatus,
       paymentData.customer_email,
       paymentData.amount_in_cents,
+      transactionDTO.productId,
     );
-    await this.updateTransactionStatus(transactionId);
   }
 
   private async updateTransactionStatus(transactionId: string): Promise<void> {
@@ -140,12 +172,14 @@ export class TransactionService {
     initialStatus: string,
     userEmail: string,
     amount: number,
+    productId: number,
   ): Promise<void> {
     const transaction = new Transaction(
       transactionId,
       initialStatus,
       userEmail,
       amount,
+      productId,
     );
 
     const transactionEntity = TransactionMappers.mapToEntity(transaction);
@@ -155,7 +189,11 @@ export class TransactionService {
   generateReference(): string {
     const now = new Date();
     const formattedDate = now.toISOString().replace(/[-:.]/g, '').slice(0, 14);
-    return `ART${formattedDate}`;
+    const randomSuffix = Math.random()
+      .toString(36)
+      .substring(2, 8)
+      .toUpperCase();
+    return `ART${formattedDate}${randomSuffix}`;
   }
 
   generateSignature(reference: string, amount: number): string {
@@ -282,5 +320,9 @@ export class TransactionService {
       this.handleError(TransactionErrorMessages.ERROR_GET_REQUEST, error);
       throw error;
     }
+  }
+
+  handleError(message: any, error: any) {
+    console.error(message, error.response?.data || error.message);
   }
 }

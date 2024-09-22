@@ -18,6 +18,7 @@ export class TransactionRepositoryImpl implements TransactionRepository {
     entity.status = transaction.status;
     entity.userEmail = transaction.userEmail;
     entity.amount = transaction.amount;
+    entity.productId = transaction.productId;
 
     await this.transactionRepository.save(entity);
   }
@@ -31,18 +32,25 @@ export class TransactionRepositoryImpl implements TransactionRepository {
           entity.status,
           entity.userEmail,
           entity.amount,
+          entity.productId,
         ),
     );
   }
 
-  async findOne(id: number): Promise<Transaction> {
-    const entity = await this.transactionRepository.findOneBy({ id });
+  async findByTransactionNumber(
+    transactionNumber: string,
+  ): Promise<Transaction | null> {
+    const entity = await this.transactionRepository.findOneBy({
+      transactionNumber,
+    });
     if (!entity) return null;
+
     return new Transaction(
       entity.transactionNumber,
       entity.status,
       entity.userEmail,
       entity.amount,
+      entity.productId,
     );
   }
 

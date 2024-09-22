@@ -16,4 +16,7 @@ export class TransactionEntity {
 
   @Column('decimal')
   amount: number;
+
+  @Column({ name: 'product_id' })
+  productId: number;
 }
