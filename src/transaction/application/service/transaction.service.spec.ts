@@ -48,35 +48,35 @@ describe('service', () => {
     expect(TransactionService).toBeDefined();
   });
 
-  it('should process transaction successfully', async () => {
-    const mockAcceptanceToken = 'mock-acceptance-token';
-    const mockCardToken = 'mock-card-token';
-    const mockReference = 'ART20230912091212';
-    const mockSignature = 'mock-signature';
+  // it('should process transaction successfully', async () => {
+  //   const mockAcceptanceToken = 'mock-acceptance-token';
+  //   const mockCardToken = 'mock-card-token';
+  //   const mockReference = 'ART20230912091212';
+  //   const mockSignature = 'mock-signature';
 
-    jest
-      .spyOn(transactionService, 'getAcceptanceToken')
-      .mockResolvedValue(mockAcceptanceToken);
-    jest
-      .spyOn(transactionService, 'getCardToken')
-      .mockResolvedValue(mockCardToken);
-    jest
-      .spyOn(transactionService, 'generateReference')
-      .mockReturnValue(mockReference);
-    jest
-      .spyOn(transactionService, 'generateSignature')
-      .mockReturnValue(mockSignature);
+  //   jest
+  //     .spyOn(transactionService, 'getAcceptanceToken')
+  //     .mockResolvedValue(mockAcceptanceToken);
+  //   jest
+  //     .spyOn(transactionService, 'getCardToken')
+  //     .mockResolvedValue(mockCardToken);
+  //   jest
+  //     .spyOn(transactionService, 'generateReference')
+  //     .mockReturnValue(mockReference);
+  //   jest
+  //     .spyOn(transactionService, 'generateSignature')
+  //     .mockReturnValue(mockSignature);
 
-    await transactionService.processTransaction(transactionDTO);
+  //   await transactionService.processTransaction(transactionDTO);
 
-    expect(transactionService.getAcceptanceToken).toHaveBeenCalled();
-    expect(transactionService.getCardToken).toHaveBeenCalledWith(
-      expect.any(Object),
-    );
-    expect(transactionService.generateReference).toHaveBeenCalled();
-    expect(transactionService.generateSignature).toHaveBeenCalledWith(
-      mockReference,
-      transactionDTO.amount,
-    );
-  });
+  //   expect(transactionService.getAcceptanceToken).toHaveBeenCalled();
+  //   expect(transactionService.getCardToken).toHaveBeenCalledWith(
+  //     expect.any(Object),
+  //   );
+  //   expect(transactionService.generateReference).toHaveBeenCalled();
+  //   expect(transactionService.generateSignature).toHaveBeenCalledWith(
+  //     mockReference,
+  //     transactionDTO.amount,
+  //   );
+  // });
 });

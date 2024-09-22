@@ -6,9 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransactionEntity } from './infrastructure/entity/transaction.entity';
 import { ProductModule } from 'src/product/product.module';
 import { WebhookController } from './infrastructure/webhook.controller';
+import { DeliveryModule } from 'src/delivery/delivery.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TransactionEntity]), ProductModule],
+  imports: [
+    TypeOrmModule.forFeature([TransactionEntity]),
+    ProductModule,
+    DeliveryModule,
+  ],
   providers: [
     TransactionService,
     { provide: 'TransactionRepository', useClass: TransactionRepositoryImpl },
