@@ -1,11 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { TransactionDTO } from '../dtos/transaction.dto';
-import { TransactionConstants } from 'src/transaction/constant/transaction.constants';
-import axios from 'axios';
+import { TransactionErrorMessages } from 'src/transaction/constant/transaction.constants';
+import axios, { AxiosRequestConfig } from 'axios';
 import { PaymentData } from 'src/transaction/domain/interfaces/payment-data.interface';
 import * as crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import { CardData } from 'src/transaction/domain/interfaces/card-data.interface';
+import { TransactionRepository } from 'src/transaction/domain/repository/transaction.repository';
+import { Transaction } from 'src/transaction/domain/model/transaction.model';
+import { TransactionMappers } from 'src/transaction/infrastructure/mappers/transaction.mappers';
+import e from 'express';
 
 dotenv.config();
 
@@ -20,59 +24,128 @@ export class TransactionService {
   private INTEGRITY_KEY = process.env.INTEGRITY_KEY;
   private applicationJson = 'application/json';
 
+  traceMessagePaymentRequest = 'Payment request sent, Transaction ID is:';
   copCurrency = 'COP';
   paymentMethodType = 'CARD';
-  transactionConstants: any = TransactionConstants;
 
-  constructor() {}
+  constructor(
+    @Inject('TransactionRepository')
+    private readonly transactionRepository: TransactionRepository,
+  ) {}
 
   async processTransaction(transactionDTO: TransactionDTO): Promise<void> {
-    const acceptanceToken = await this.getAcceptanceToken();
-    const cardData = this.generateCardData(transactionDTO);
-    const cardToken = await this.getCardToken(cardData);
+    try {
+      const acceptanceToken = await this.getAcceptanceToken();
+      if (!acceptanceToken)
+        throw new Error(TransactionErrorMessages.ERROR_ACCEPTANCE_TOKEN);
 
-    if (!acceptanceToken) {
-      throw new Error('Could not retrieve acceptance token');
+      const cardData = this.generateCardData(transactionDTO);
+      const cardToken = await this.getCardToken(cardData);
+
+      const reference = this.generateReference();
+      const signature = this.generateSignature(
+        reference,
+        transactionDTO.amount,
+      );
+
+      const paymentData = this.generatePaymentData(
+        transactionDTO,
+        reference,
+        signature,
+        cardToken,
+        acceptanceToken,
+      );
+
+      await this.sendPaymentRequest(paymentData);
+    } catch (error) {
+      this.handleError(
+        TransactionErrorMessages.ERROR_PROCESSING_TRANSACTION,
+        error,
+      );
     }
-
-    const reference = this.generateReference();
-    const signature = this.generateSignature(reference, transactionDTO.amount);
-
-    const paymentData: PaymentData = {
-      amount_in_cents: transactionDTO.amount * 100,
-      currency: this.copCurrency,
-      signature: signature,
-      customer_email: transactionDTO.userEmail,
-      reference: reference,
-      payment_method: {
-        type: this.paymentMethodType,
-        installments: transactionDTO.installments,
-        token: cardToken,
-      },
-      acceptance_token: acceptanceToken,
-    };
-
-    await this.sendPaymentRequest(paymentData);
+  }
+  handleError(message: any, error: any) {
+    console.error(message, error.response?.data || error.message);
   }
 
   private async sendPaymentRequest(paymentData: PaymentData): Promise<void> {
     try {
-      const response = await axios.post(
-        this.API_URL + this.TRANSACTION,
+      const response = await this.postRequest(
+        `${this.API_URL}${this.TRANSACTION}`,
         paymentData,
-        {
-          headers: {
-            'Content-Type': this.applicationJson,
-            Authorization: `Bearer ${this.SECRET_KEY}`,
-          },
-        },
+        this.SECRET_KEY,
       );
-      const status = response.data.data.status;
-      console.log('Transaction status', status);
-      console.log('Transaction id:', response.data.data.id);
+
+      const transactionId = response.data.data.id;
+      const initialStatus = response.data.data.status;
+      console.log(`${this.traceMessagePaymentRequest} ${transactionId}`);
+
+      await this.handleTransactionResponse(
+        transactionId,
+        initialStatus,
+        paymentData,
+      );
     } catch (error) {
-      console.error('Error processing payment:', error.response.data);
+      this.handleError(
+        TransactionErrorMessages.ERROR_SENDING_PAYMENT_REQUEST,
+        error,
+      );
+      throw error;
     }
+  }
+  async handleTransactionResponse(
+    transactionId: string,
+    initialStatus: string,
+    paymentData: PaymentData,
+  ) {
+    await this.saveTransactionToDB(
+      transactionId,
+      initialStatus,
+      paymentData.customer_email,
+      paymentData.amount_in_cents,
+    );
+    await this.updateTransactionStatus(transactionId);
+  }
+
+  private async updateTransactionStatus(transactionId: string): Promise<void> {
+    try {
+      const response = await this.getRequest(
+        `${this.API_URL}${this.TRANSACTION}/${transactionId}`,
+      );
+
+      const updatedStatus = response.data.data.status;
+      await this.updateTransactionStatusInDB(transactionId, updatedStatus);
+    } catch (error) {
+      this.handleError(
+        TransactionErrorMessages.ERROR_UPDATING_TRANSACTION_STATE,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  async updateTransactionStatusInDB(
+    transactionId: string,
+    updatedStatus: any,
+  ): Promise<void> {
+    await this.transactionRepository.updateStatus(transactionId, updatedStatus);
+  }
+
+  private async saveTransactionToDB(
+    transactionId: string,
+    initialStatus: string,
+    userEmail: string,
+    amount: number,
+  ): Promise<void> {
+    const transaction = new Transaction(
+      transactionId,
+      initialStatus,
+      userEmail,
+      amount,
+    );
+
+    const transactionEntity = TransactionMappers.mapToEntity(transaction);
+    await this.transactionRepository.create(transactionEntity);
   }
 
   generateReference(): string {
@@ -97,44 +170,58 @@ export class TransactionService {
     };
   }
 
+  generatePaymentData(
+    transactionDTO: TransactionDTO,
+    reference: string,
+    signature: string,
+    cardToken: string,
+    acceptanceToken: string,
+  ): PaymentData {
+    return {
+      amount_in_cents: transactionDTO.amount * 100,
+      currency: this.copCurrency,
+      signature,
+      customer_email: transactionDTO.userEmail,
+      reference,
+      payment_method: {
+        type: this.paymentMethodType,
+        installments: transactionDTO.installments,
+        token: cardToken,
+      },
+      acceptance_token: acceptanceToken,
+    };
+  }
+
   async getAcceptanceToken(): Promise<string | null> {
     try {
-      const response = await axios.get(
-        this.API_URL + this.ACCEPTANCE_TOKEN + this.PUBLIC_KEY,
-        {
-          headers: {
-            'Content-Type': this.applicationJson,
-          },
-        },
+      const response = await this.getRequest(
+        `${this.API_URL}${this.ACCEPTANCE_TOKEN}${this.PUBLIC_KEY}`,
       );
+
       return response.data.data.presigned_acceptance.acceptance_token;
     } catch (error) {
-      console.error(
-        this.transactionConstants.ERROR_GETTING_ACCEPTANCE_TOKEN,
-        error.message,
+      this.handleError(
+        TransactionErrorMessages.ERROR_GETTING_ACCEPTANCE_TOKEN,
+        error,
       );
+      throw error;
     }
   }
 
   async getCardToken(tokenCardData: CardData): Promise<string | null> {
     try {
-      const response = await axios.post(
-        this.API_URL + this.TOKENIZATION_CARDS,
+      const response = await this.postRequest(
+        `${this.API_URL}${this.TOKENIZATION_CARDS}`,
         this.transformCardDataToSnakeCase(tokenCardData),
-        {
-          headers: {
-            'Content-Type': this.applicationJson,
-            Authorization: `Bearer ${this.PUBLIC_KEY}`,
-          },
-        },
+        this.PUBLIC_KEY,
       );
-
       return response.data.data.id;
     } catch (error) {
-      console.error(
-        this.transactionConstants.ERROR_GETTING_CARD_TOKEN,
-        error.response.data,
+      this.handleError(
+        TransactionErrorMessages.ERROR_GETTING_CARD_TOKEN,
+        error,
       );
+      throw error;
     }
   }
 
@@ -150,24 +237,46 @@ export class TransactionService {
 
   async processPayment(paymentData: PaymentData): Promise<void> {
     try {
-      const response = await axios.post(
-        this.API_URL + this.TRANSACTION,
+      await this.postRequest(
+        `${this.API_URL}${this.TRANSACTION}`,
         paymentData,
-        {
-          headers: {
-            'Content-Type': this.applicationJson,
-            Authorization: `Bearer ${this.SECRET_KEY}`,
-          },
-        },
+        this.SECRET_KEY,
       );
-
-      if (response.data.status === 'SUCCESS') {
-        console.log('Payment processed successfully:', response.data);
-      } else {
-        console.error('Payment failed:', response.data);
-      }
     } catch (error) {
-      console.error('Error processing payment:', error.message);
+      this.handleError(
+        TransactionErrorMessages.ERROR_PROCESSING_PAYMENTS,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  async postRequest(url: string, data: any, token: string): Promise<any> {
+    try {
+      const config: AxiosRequestConfig = {
+        headers: {
+          'Content-Type': this.applicationJson,
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      return await axios.post(url, data, config);
+    } catch (error) {
+      this.handleError(TransactionErrorMessages.ERROR_POST_REQUEST, error);
+      throw error;
+    }
+  }
+
+  async getRequest(url: string): Promise<any> {
+    try {
+      const config: AxiosRequestConfig = {
+        headers: {
+          'Content-Type': this.applicationJson,
+        },
+      };
+      return await axios.get(url, config);
+    } catch (error) {
+      this.handleError(TransactionErrorMessages.ERROR_GET_REQUEST, error);
+      throw error;
     }
   }
 }

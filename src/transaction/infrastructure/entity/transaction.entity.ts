@@ -1,19 +1,19 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('transactions')
 export class TransactionEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    transactionNumber: string;
+  @Column({ name: 'transaction_number' })
+  transactionNumber: string;
 
-    @Column()
-    status: string;
+  @Column()
+  status: string;
 
-    @Column()
-    userEmail: string;
+  @Column({ name: 'user_email' })
+  userEmail: string;
 
-    @Column('decimal')
-    amount: number;
+  @Column('decimal')
+  amount: number;
 }
