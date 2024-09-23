@@ -7,12 +7,14 @@ import { TransactionEntity } from './infrastructure/entity/transaction.entity';
 import { ProductModule } from 'src/product/product.module';
 import { WebhookController } from './infrastructure/webhook.controller';
 import { DeliveryModule } from 'src/delivery/delivery.module';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([TransactionEntity]),
     ProductModule,
     DeliveryModule,
+    PaymentModule,
   ],
   providers: [
     TransactionService,
