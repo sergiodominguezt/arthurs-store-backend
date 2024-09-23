@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Product } from 'src/product/domain/model/product.model';
 import { ProductRepository } from 'src/product/domain/repository/product.repository';
-import { ProductRepositoryImpl } from 'src/product/infrastructure/repository/product.repository.impl';
 import { Either, left, right } from 'src/utils/either';
 
 @Injectable()
@@ -38,12 +37,54 @@ export class ProductService {
 
   async seedDummyData(): Promise<void> {
     const products: Product[] = [
-      new Product(0, 'Product 1', 'Description 1', 10.99, 100),
-      new Product(0, 'Product 2', 'Description 2', 20.49, 50),
-      new Product(0, 'Product 3', 'Description 3', 15.75, 75),
-      new Product(0, 'Product 4', 'Description 4', 12.0, 60),
-      new Product(0, 'Product 5', 'Description 5', 41.5, 2),
-      new Product(0, 'Product 6', 'Description 6', 13.45, 55),
+      new Product(
+        0,
+        'Product 1',
+        'Description 1',
+        2000,
+        100,
+        'https://fastly.picsum.photos/id/26/4209/2769.jpg?hmac=vcInmowFvPCyKGtV7Vfh7zWcA_Z0kStrPDW3ppP0iGI',
+      ),
+      new Product(
+        0,
+        'Product 2',
+        'Description 2',
+        3000,
+        50,
+        'https://fastly.picsum.photos/id/25/5000/3333.jpg?hmac=yCz9LeSs-i72Ru0YvvpsoECnCTxZjzGde805gWrAHkM',
+      ),
+      new Product(
+        0,
+        'Product 3',
+        'Description 3',
+        400000,
+        75,
+        'https://fastly.picsum.photos/id/24/4855/1803.jpg?hmac=ICVhP1pUXDLXaTkgwDJinSUS59UWalMxf4SOIWb9Ui4',
+      ),
+      new Product(
+        0,
+        'Product 4',
+        'Description 4',
+        200000,
+        60,
+        'https://fastly.picsum.photos/id/29/4000/2670.jpg?hmac=rCbRAl24FzrSzwlR5tL-Aqzyu5tX_PA95VJtnUXegGU',
+      ),
+      new Product(
+        0,
+        'Product 5',
+        'Description 5',
+        50000,
+        2,
+        'https://fastly.picsum.photos/id/29/4000/2670.jpg?hmac=rCbRAl24FzrSzwlR5tL-Aqzyu5tX_PA95VJtnUXegGU',
+      ),
+      new Product(
+        0,
+        'Product 6',
+        'Description 6',
+        75000,
+        55,
+        'https://fastly.picsum.photos/id/20/3670/2462.jpg?hmac=CmQ0ln-k5ZqkdtLvVO23LjVAEabZQx2wOaT4pyeG10I',
+      ),
     ];
 
     for (const product of products) {
