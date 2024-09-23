@@ -18,6 +18,9 @@ export class ProductEntity {
   @Column()
   stock: number;
 
+  @Column({ name: 'image_url', nullable: true })
+  imageUrl: string;
+
   @OneToMany(() => DeliveryEntity, (delivery) => delivery.product)
   deliveries: DeliveryEntity[];
 }
