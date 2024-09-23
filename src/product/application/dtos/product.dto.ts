@@ -1,6 +1,9 @@
 export class ProductDTO {
-    name: string;
-    description: string;
-    price: number;
-    stock: number;
+  productId: number;
+  name?: string;
+  description?: string;
+  price: number;
+  stock?: number;
+  quantity?: number;
+  urlImage?: string;
 }
