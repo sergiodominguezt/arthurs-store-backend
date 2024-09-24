@@ -19,6 +19,7 @@ export class TransactionRepositoryImpl implements TransactionRepository {
     entity.userEmail = transaction.userEmail;
     entity.amount = transaction.amount;
     entity.productId = transaction.productId;
+    entity.productQuantity = transaction.productQuantity;
 
     await this.transactionRepository.save(entity);
   }
@@ -33,6 +34,7 @@ export class TransactionRepositoryImpl implements TransactionRepository {
           entity.userEmail,
           entity.amount,
           entity.productId,
+          entity.productQuantity,
         ),
     );
   }
@@ -51,6 +53,7 @@ export class TransactionRepositoryImpl implements TransactionRepository {
       entity.userEmail,
       entity.amount,
       entity.productId,
+      entity.productQuantity,
     );
   }
 

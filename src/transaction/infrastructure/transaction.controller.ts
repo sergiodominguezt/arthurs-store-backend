@@ -18,24 +18,6 @@ import { FullTransactionDTO } from '../application/dtos/full.transaction.dto';
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
-  // @Post()
-  // async createTransaction(
-  //   @Body() transactionDto: TransactionDTO,
-  //   @Body() deliveryDTO: DeliveryDTO,
-  // ): Promise<{ message: string }> {
-  //   try {
-  //     await this.transactionService.processTransaction(
-  //       transactionDto,
-  //       deliveryDTO,
-  //     );
-  //     return { message: 'Transaction processed successfully' };
-  //   } catch (error) {
-  //     throw new HttpException(
-  //       error.message || 'An error ocurred while processing the transaction',
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
-  // }
   @Post()
   async createTransaction(
     @Body() transactionDto: FullTransactionDTO,

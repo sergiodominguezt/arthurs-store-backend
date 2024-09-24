@@ -40,7 +40,10 @@ export class PaymentService {
 
   constructor() {}
 
-  async processPayment(transactionDTO: TransactionDTO, totalAmount: number) {
+  async processPayment(
+    transactionDTO: TransactionDTO,
+    totalAmount: number,
+  ): Promise<{ id: string; status: string }> {
     const [acceptanceToken, cardToken] = await Promise.all([
       this.getAcceptanceToken(),
       this.getCardToken(transactionDTO),
@@ -64,7 +67,7 @@ export class PaymentService {
       totalAmount,
     );
 
-    await this.sendPaymentRequest(paymentData);
+    return await this.sendPaymentRequest(paymentData);
   }
 
   async sendPaymentRequest(

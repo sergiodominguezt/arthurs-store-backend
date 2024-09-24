@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Product } from 'src/product/domain/model/product.model';
 import { ProductRepository } from 'src/product/domain/repository/product.repository';
 import { Either, left, right } from 'src/utils/either';
+import { ProductDTO } from '../dtos/product.dto';
+import { toProductDTO } from 'src/product/mappers/product.mapper';
 
 @Injectable()
 export class ProductService {
@@ -9,16 +11,29 @@ export class ProductService {
     @Inject('ProductRepository') private productRepository: ProductRepository,
   ) {}
 
-  async listProducts(): Promise<Either<Error, Product[]>> {
+  async listProducts(): Promise<Either<Error, ProductDTO[]>> {
     try {
-      return right(await this.productRepository.findAll());
+      const products = await this.productRepository.findAll();
+      const productDTOs = products.map(toProductDTO);
+      return right(productDTOs);
     } catch (error) {
       return left(new Error('Failed to list products'));
     }
   }
 
-  async findById(productId: number): Promise<Product | null> {
-    return this.productRepository.findById(productId);
+  // async listProducts(): Promise<Either<Error, Product[]>> {
+  //   try {
+  //     const products = await this.productRepository.findAll();
+  //     const productDTOs = products.map(toProductDTO);
+  //     return right(products);
+  //   } catch (error) {
+  //     return left(new Error('Failed to list products'));
+  //   }
+  // }
+
+  async findById(productId: number): Promise<ProductDTO | null> {
+    const product = await this.productRepository.findById(productId);
+    return product ? toProductDTO(product) : null;
   }
 
   async updateStock(productId: number, quantity: number): Promise<void> {
@@ -29,6 +44,7 @@ export class ProductService {
 
     const newStock = product.stock - quantity;
     if (newStock < 0) {
+      console.error('Insufficient stock');
       throw new Error('Insufficient stock');
     }
 
