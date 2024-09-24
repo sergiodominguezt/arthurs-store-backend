@@ -9,6 +9,7 @@ export class TransactionMappers {
     transactionEntity.userEmail = transaction.userEmail;
     transactionEntity.amount = transaction.amount;
     transactionEntity.productId = transaction.productId;
+    transactionEntity.productQuantity = transaction.productQuantity;
     return transactionEntity;
   }
 
@@ -19,6 +20,7 @@ export class TransactionMappers {
       entity.userEmail,
       entity.amount,
       entity.productId,
+      entity.productQuantity,
     );
   }
 }

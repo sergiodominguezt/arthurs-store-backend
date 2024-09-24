@@ -12,15 +12,15 @@ export class ProductEntity {
   @Column()
   description: string;
 
-  @Column('decimal')
+  @Column()
   price: number;
 
   @Column()
   stock: number;
 
-  @Column({ name: 'image_url', nullable: true })
-  imageUrl: string;
+  @Column({ name: 'url_image', nullable: true })
+  urlImage: string;
 
   @OneToMany(() => DeliveryEntity, (delivery) => delivery.product)
-  deliveries: DeliveryEntity[];
+  deliveries?: DeliveryEntity[];
 }

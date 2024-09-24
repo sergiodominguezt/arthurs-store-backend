@@ -22,7 +22,7 @@ export class ProductRepositoryImpl implements ProductRepository {
           entity.description,
           entity.price,
           entity.stock,
-          entity.imageUrl,
+          entity.urlImage,
         ),
     );
   }
@@ -40,8 +40,7 @@ export class ProductRepositoryImpl implements ProductRepository {
       entity.description,
       entity.price,
       entity.stock,
-      entity.imageUrl,
-      entity.deliveries,
+      entity.urlImage,
     );
   }
 
@@ -56,7 +55,7 @@ export class ProductRepositoryImpl implements ProductRepository {
     entity.description = product.description;
     entity.price = product.price;
     entity.stock = product.stock;
-    entity.imageUrl = product.urlImage;
+    entity.urlImage = product.urlImage;
 
     await this.productRepository.save(entity);
   }

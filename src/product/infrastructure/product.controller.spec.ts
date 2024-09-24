@@ -4,6 +4,7 @@ import { ProductService } from '../application/services/product.service';
 import { Product } from '../domain/model/product.model';
 import { Left, Right } from 'src/utils/either';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { ProductDTO } from '../application/dtos/product.dto';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -31,9 +32,9 @@ describe('ProductController', () => {
   });
 
   it('should return a list of products', async () => {
-    const result: Product[] = [
+    const result: ProductDTO[] = [
       {
-        id: 1,
+        productId: 1,
         name: 'Product 1',
         description: 'Description 1',
         stock: 100,

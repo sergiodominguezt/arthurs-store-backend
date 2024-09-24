@@ -2,7 +2,7 @@ export class ProductDTO {
   productId: number;
   name?: string;
   description?: string;
-  price: number;
+  price?: number;
   stock?: number;
   quantity?: number;
   urlImage?: string;

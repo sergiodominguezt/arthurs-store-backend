@@ -19,4 +19,7 @@ export class TransactionEntity {
 
   @Column({ name: 'product_id' })
   productId: number;
+
+  @Column({ name: 'product_quantity' })
+  productQuantity: number;
 }
