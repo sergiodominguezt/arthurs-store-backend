@@ -21,13 +21,16 @@ export class TransactionController {
   @Post()
   async createTransaction(
     @Body() transactionDto: FullTransactionDTO,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: string; status: string }> {
     try {
-      await this.transactionService.processTransaction(
+      const result = await this.transactionService.processTransaction(
         transactionDto.payment,
         transactionDto.delivery,
       );
-      return { message: 'Transaction processed successfully' };
+      return {
+        message: 'Transaction processed successfully',
+        status: result.status,
+      };
     } catch (error) {
       throw new HttpException(
         error.message || 'An error ocurred while processing the transaction',

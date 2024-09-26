@@ -9,6 +9,7 @@ import { WebhookController } from './infrastructure/webhook.controller';
 import { DeliveryModule } from 'src/delivery/delivery.module';
 import { PaymentModule } from 'src/payment/payment.module';
 import { WebhookService } from './application/service/webhook.service';
+import { NotificationGateway } from 'src/utils/notification-gateway';
 
 @Module({
   imports: [
@@ -20,9 +21,10 @@ import { WebhookService } from './application/service/webhook.service';
   providers: [
     TransactionService,
     WebhookService,
+    NotificationGateway,
     { provide: 'TransactionRepository', useClass: TransactionRepositoryImpl },
   ],
   controllers: [TransactionController, WebhookController],
-  exports: [TransactionService, WebhookService],
+  exports: [TransactionService, WebhookService, NotificationGateway],
 })
 export class TransactionModule {}

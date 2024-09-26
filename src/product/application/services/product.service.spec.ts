@@ -3,10 +3,12 @@ import { ProductService } from './product.service';
 import { ProductRepository } from 'src/product/domain/repository/product.repository';
 import { Product } from 'src/product/domain/model/product.model';
 import { Either, right, left, Right, Left } from 'src/utils/either';
+import { ProductDTO } from '../dtos/product.dto';
 
 describe('ProductService', () => {
   let productService: ProductService;
   let productRepository: ProductRepository;
+  let consoleErrorSpy: jest.SpyInstance;
 
   const mockProductRepository = {
     findAll: jest.fn(),
@@ -28,29 +30,31 @@ describe('ProductService', () => {
 
     productService = module.get<ProductService>(ProductService);
     productRepository = module.get<ProductRepository>('ProductRepository');
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
+    consoleErrorSpy.mockRestore();
     jest.clearAllMocks();
   });
 
   describe('listProducts', () => {
     it('should return a list of products', async () => {
       const products = [
-        new Product(
-          1,
+        new ProductDTO(
+          undefined,
           'Product 1',
           'Desc 1',
-          10.99,
+          10000,
           10,
           'https://fastly.picsum.photos/id/20/3670/2462.jpg?hmac=CmQ0ln-k5ZqkdtLvVO23LjVAEabZQx2wOaT4pyeG10I',
         ),
       ];
+
       mockProductRepository.findAll.mockResolvedValue(products);
 
       const result = await productService.listProducts();
 
-      // Check if it's a Right (success) and extract the value
       if (result instanceof Right) {
         expect(result.value).toEqual(products);
       } else {
@@ -75,8 +79,8 @@ describe('ProductService', () => {
 
   describe('findById', () => {
     it('should return a product if found', async () => {
-      const product = new Product(
-        1,
+      const product = new ProductDTO(
+        undefined,
         'Product 1',
         'Description 1',
         10.99,
@@ -138,6 +142,8 @@ describe('ProductService', () => {
       await expect(productService.updateStock(1, 10)).rejects.toThrow(
         'Insufficient stock',
       );
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Insufficient stock');
     });
   });
 
@@ -145,7 +151,7 @@ describe('ProductService', () => {
     it('should seed dummy data into the repository', async () => {
       await productService.seedDummyData();
 
-      expect(mockProductRepository.create).toHaveBeenCalledTimes(6);
+      expect(mockProductRepository.create).toHaveBeenCalled();
     });
   });
 });

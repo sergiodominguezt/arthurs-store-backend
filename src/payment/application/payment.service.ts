@@ -129,6 +129,7 @@ export class PaymentService {
 
   async getAcceptanceToken(): Promise<string | null> {
     try {
+      console.log('Fetching acceptance token...');
       const response = await axios.get<ApiResponse<MerchantData>>(
         `${this.API_URL}${this.ACCEPTANCE_TOKEN}${this.PUBLIC_KEY}`,
         { headers: { 'Content-Type': this.applicationJson } },
@@ -194,7 +195,10 @@ export class PaymentService {
   }
 
   handleError(message: any, error: any) {
-    console.error(message, error.response?.data || error.message);
+    const errorMessage =
+      error.response?.data || error.message || 'Unknown error';
+    console.error(message, errorMessage);
+
     throw new Error(message);
   }
 }

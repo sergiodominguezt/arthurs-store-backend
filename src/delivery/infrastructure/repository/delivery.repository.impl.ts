@@ -4,7 +4,6 @@ import { DeliveryEntity } from '../entity/delivery.entity';
 import { Repository } from 'typeorm';
 import { Delivery } from 'src/delivery/domain/model/delivery.model';
 import { ProductEntity } from 'src/product/infrastructure/entity/product.entity';
-import { ProductRepository } from 'src/product/domain/repository/product.repository';
 
 export class DeliveryRepositoryImpl implements DeliveryRepository {
   constructor(

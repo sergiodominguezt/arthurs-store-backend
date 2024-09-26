@@ -13,6 +13,7 @@ import { WebhookService } from '../application/service/webhook.service';
 import { TransactionEvent } from 'src/shared/models/generic/event-response.model';
 import toCamelCase from 'src/utils/to-camel-case';
 import { WebhookTraceMessages } from '../constants/webhook.constants';
+import { NotificationGateway } from 'src/utils/notification-gateway';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ export class WebhookController {
   constructor(
     private readonly transactionService: TransactionService,
     private readonly webhookService: WebhookService,
+    private readonly notificationGateway: NotificationGateway,
   ) {}
 
   private readonly EVENTS_SECRET = process.env.EVENT_SECRET;
@@ -40,6 +42,11 @@ export class WebhookController {
       }
 
       await this.transactionService.handleTransactionUpdate(
+        camelCaseEvent.data.transaction.id,
+        camelCaseEvent.data.transaction.status,
+      );
+
+      this.notificationGateway.notifyTransactionStatus(
         camelCaseEvent.data.transaction.id,
         camelCaseEvent.data.transaction.status,
       );

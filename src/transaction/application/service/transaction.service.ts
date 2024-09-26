@@ -40,7 +40,7 @@ export class TransactionService {
   async processTransaction(
     transactionDTO: TransactionDTO,
     deliveryDTO: DeliveryDTO,
-  ): Promise<void> {
+  ): Promise<{ status: string }> {
     try {
       const productId = transactionDTO.productId;
 
@@ -66,6 +66,7 @@ export class TransactionService {
         transactionDTO.productId,
         transactionDTO.productQuantity,
       );
+      return { status: paymentResult.status };
     } catch (error) {
       this.handleError(
         TransactionErrorMessages.ERROR_PROCESSING_TRANSACTION,
