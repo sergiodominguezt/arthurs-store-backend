@@ -18,7 +18,6 @@ dotenv.config();
       database: process.env.DB_DATABASE,
       autoLoadEntities: true,
       synchronize: true,
-      logging: true,
     }),
     ProductModule,
     TransactionModule,
