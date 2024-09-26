@@ -39,6 +39,10 @@ This is a NestJS application for processing credit card payments using the exter
 - Process Transactions
     POST http://api-url:3000/transaction
     Processes credit card transactions through the Arthompi API.
+## Postman Collections
+   You can find postman collections in:
+      ```bash
+      collections/
 
 ## Technologies Used
 - NestJS: A progressive Node.js framework for building efficient and scalable server-side applications.
