@@ -5,4 +5,4 @@ echo 'cd /home/ec2-user/arthurs-store-backend' >> /home/ec2-user/arthurs-store-b
 cd /home/ec2-user/arthurs-store-backend >> /home/ec2-user/arthurs-store-backend/deploy.log
 
 echo 'npm install' >> /home/ec2-user/arthurs-store-backend/deploy.log 
-npm install >> /home/ec2-user/arthurs-store-backend/deploy.log
+sudo npm install >> /home/ec2-user/arthurs-store-backend/deploy.log
