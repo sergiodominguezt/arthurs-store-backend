@@ -1,0 +1,271 @@
+{
+	"info": {
+		"_postman_id": "42ac4436-f93d-4688-a0d7-16068ce1538a",
+		"name": "Arthurs Store",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21467846",
+		"_collection_link": "https://blue-space-388879.postman.co/workspace/Team-Workspace~48f8b772-7e0a-4052-8619-d147d64f79b5/collection/21467846-42ac4436-f93d-4688-a0d7-16068ce1538a?action=share&source=collection_link&creator=21467846"
+	},
+	"item": [
+		{
+			"name": "Get products",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{urlArthursStore}}/products",
+					"host": [
+						"{{urlArthursStore}}"
+					],
+					"path": [
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get acceptance token",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{urlPaymentArthompi}}merchants/pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7",
+					"host": [
+						"{{urlPaymentArthompi}}merchants"
+					],
+					"path": [
+						"pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get transaction details",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{urlPaymentArthompi}}merchants/pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7",
+					"host": [
+						"{{urlPaymentArthompi}}merchants"
+					],
+					"path": [
+						"pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Card tokenization",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"number\": \"4242424242424242\", // Número de la tarjeta\r\n  \"cvc\": \"123\", // Código de seguridad de la tarjeta (3 o 4 dígitos según corresponda)\r\n  \"exp_month\": \"08\", // Mes de expiración (string de 2 dígitos)\r\n  \"exp_year\": \"28\", // Año expresado current 2 dígitos\r\n  \"card_holder\": \"José Pérez\" // Nombre del tarjetahabiente\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{urlPaymentArthompi}}tokens/cards",
+					"host": [
+						"{{urlPaymentArthompi}}tokens"
+					],
+					"path": [
+						"cards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transaction to real api",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"number\": \"4242424242424242\", // Número de la tarjeta\r\n  \"cvc\": \"123\", // Código de seguridad de la tarjeta (3 o 4 dígitos según corresponda)\r\n  \"exp_month\": \"08\", // Mes de expiración (string de 2 dígitos)\r\n  \"exp_year\": \"28\", // Año expresado current 2 dígitos\r\n  \"card_holder\": \"José Pérez\" // Nombre del tarjetahabiente\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{urlPaymentArthompi}}tokens/cards",
+					"host": [
+						"{{urlPaymentArthompi}}tokens"
+					],
+					"path": [
+						"cards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Process payment",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\r\n//   \"cardNumber\": \"4242424242424242\",\r\n//   \"cvc\": \"123\",\r\n//   \"expirationMonth\": \"08\",\r\n//   \"expirationYear\": \"28\",\r\n//   \"cardHolder\": \"JOSE PEREZ\",\r\n//   \"userEmail\": \"jose.perez@example.com\",\r\n//   \"amount\": 30000,\r\n//   \"installments\": 3,\r\n//   \"productId\": 1\r\n// }\r\n\r\n{\r\n  \"payment\": {\r\n    \"cardNumber\": \"4242424242424242\",\r\n    \"cvc\": \"123\",\r\n    \"expirationMonth\": \"08\",\r\n    \"expirationYear\": \"28\",\r\n    \"cardHolder\": \"JOSE PEREZ\",\r\n    \"userEmail\": \"jose.perez@example.com\",\r\n    // \"amount\": 30000,\r\n    \"installments\": 3,\r\n    \"productId\": 1,\r\n    \"productQuantity\": 1\r\n  },\r\n  \"delivery\": {\r\n    \"address\": \"Calle siempre viva\",\r\n    \"city\": \"Springfield\",\r\n    \"customerName\": \"John Doe\",\r\n    \"productId\": 1\r\n  }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{urlArthursStore}}/transaction",
+					"host": [
+						"{{urlArthursStore}}"
+					],
+					"path": [
+						"transaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Try webhook locally",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-api-key",
+						"value": "pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"event\": \"transaction.updated\",\r\n  \"data\": {\r\n    \"transaction\": {\r\n      \"id\": \"1234-1610641025-49201\",\r\n      \"status\": \"APPROVED\"\r\n    }\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{urlArthursStore}}/webhooks/transaction-status",
+					"host": [
+						"{{urlArthursStore}}"
+					],
+					"path": [
+						"webhooks",
+						"transaction-status"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
