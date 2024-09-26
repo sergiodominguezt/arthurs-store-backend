@@ -1,4 +1,7 @@
 #!/bin/bash
+echo 'Starting application_start.sh' >> /home/ec2-user/arthurs-store-backend/deploy.log
+echo 'Current directory: ' $(pwd) >> /home/ec2-user/arthurs-store-backend/deploy.log
+echo 'Environment PATH: ' $PATH >> /home/ec2-user/arthurs-store-backend/deploy.log
 
 echo 'run application_start.sh: ' >> /home/ec2-user/arthurs-store-backend/deploy.log
 
