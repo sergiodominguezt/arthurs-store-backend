@@ -45,3 +45,6 @@ This is a NestJS application for processing credit card payments using the exter
 - Node.js: JavaScript runtime built on Chrome's V8 JavaScript engine
 - TypeORM: An ORM that can run in Node.js, used with TypeScript and JavaScript.
 - PostgreSQL: A powerful, open-source object-relational database system.
+
+## Coverage report
+[Coverage report screenshot](https://ibb.co/G2ysJsy)
